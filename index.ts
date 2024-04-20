@@ -21,11 +21,24 @@ const Look = {
   bottomRight: (point: Point): Point => [point[0] + 1, point[1] + 1],
 };
 
-const LookupOrder = [Look.right, Look.bottomLeft, Look.down, Look.bottomRight];
+const InitialLookupOrder = [
+  Look.right,
+  Look.bottomLeft,
+  Look.down,
+  Look.bottomRight,
+];
+
+const LookupOrder = [
+  Look.left,
+  Look.right,
+  Look.bottomLeft,
+  Look.down,
+  Look.bottomRight,
+];
 
 const parse = (rawGrid: string): Grid => {
   const grid: number[][] = [];
-  const gridArray = rawGrid.split(" ").map((cell) => parseInt(cell));
+  const gridArray = rawGrid.split(" ").map((tile) => parseInt(tile));
 
   for (let i = 0; i < 8; i++) {
     grid.push(gridArray.splice(0, 5));
@@ -34,16 +47,10 @@ const parse = (rawGrid: string): Grid => {
   return grid as Grid;
 };
 
-const test = (grid: Grid, point: Point) => {
-  for (const direction of LookupOrder) {
-    console.log(direction(point));
-  }
-};
-
 const findSecondTile = (grid: Grid, point: Point): Point | undefined => {
   const pointValue = grid[point[1]][point[0]];
 
-  for (const direction of LookupOrder) {
+  for (const direction of InitialLookupOrder) {
     const nextPoint = direction(point);
     if (grid[nextPoint[1]] && grid[nextPoint[1]][nextPoint[0]] === pointValue) {
       return nextPoint;
@@ -64,6 +71,16 @@ const findStartTile = (grid: Grid): Point => {
     }
   }
   throw new Error("No start tile found.");
+};
+
+const getNextTile = (grid: Grid, point: Point): Point | undefined => {
+  for (const direction of LookupOrder) {
+    const nextPoint = direction(point);
+    if (grid[nextPoint[1]] && grid[nextPoint[1]][nextPoint[0]] !== 0) {
+      return nextPoint;
+    }
+  }
+  return undefined;
 };
 
 const findPath = (grid: string[][]) => {};
