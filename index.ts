@@ -61,12 +61,12 @@ const findSecondTile = (grid: Grid, point: Point): Point | undefined => {
 };
 
 // search for the start tile. check second tile each time until valid one is found.
-const findStartTile = (grid: Grid): Point => {
+const findStartingTiles = (grid: Grid): [Point, Point] => {
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
       const secondTile = findSecondTile(grid, [x, y]);
       if (secondTile) {
-        return [x, y];
+        return [[x, y], secondTile];
       }
     }
   }
@@ -74,16 +74,44 @@ const findStartTile = (grid: Grid): Point => {
 };
 
 const getNextTile = (grid: Grid, point: Point): Point | undefined => {
+  const pointValue = grid[point[1]][point[0]];
+
   for (const direction of LookupOrder) {
     const nextPoint = direction(point);
-    if (grid[nextPoint[1]] && grid[nextPoint[1]][nextPoint[0]] !== 0) {
+    const nextPointValue = grid[nextPoint[1]][nextPoint[0]];
+
+    if (nextPointValue === pointValue || nextPointValue === pointValue * 2) {
       return nextPoint;
     }
   }
   return undefined;
 };
 
-const findPath = (grid: string[][]) => {};
+const findPath = (grid: Grid) => {
+  const path: Point[] = [];
+  const startingTiles = findStartingTiles(grid);
+  path.push(...startingTiles);
+
+  let previousTile = startingTiles[0];
+  let nextTile: Point | undefined = startingTiles[1];
+
+  while (nextTile) {
+    path.push(nextTile);
+
+    previousTile = nextTile;
+    nextTile = getNextTile(grid, nextTile);
+
+    if (nextTile === previousTile) {
+      continue;
+    }
+
+    if (nextTile) {
+      path.push(nextTile);
+    }
+  }
+
+  return path;
+};
 
 /* Tests */
 
@@ -100,7 +128,7 @@ const main = () => {
     const grid = parse(sample);
     console.table(grid);
     console.log("\n");
-    console.log(findStartTile(grid));
+    console.log(findPath(grid));
   }
 };
 
